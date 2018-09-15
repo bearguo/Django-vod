@@ -12,15 +12,19 @@
 - 修改mysqld.cnf中的必要配置
 
 初次部署服务需要执行以下步骤：
-> 初始化docker swarm 集群 `docker swarm init --advertise-addr <ip>`
-> 
-> 收集静态资源文件`docker run --rm -it -e DJANGO_DB_HOST=<ip> -e TSRTMP_DB_HOST=<ip> python manage.py collectstatic`
->
-> 创建管理员帐号 `docker run --rm -it -e DJANGO_DB_HOST=<ip> -e TSRTMP_DB_HOST=<ip> python manage.py createsuperuser`
->
-> 创建数据表 `docker run --rm -it -e DJANGO_DB_HOST=<ip> -e TSRTMP_DB_HOST=<ip> python init_database.py`
-> 
+
 > 创建运行需要挂载的目录 `mkdir -p /home/share/vod/media && mkdir -p /home/share/vod/static`
+
+> 初始化docker swarm 集群 `docker swarm init --advertise-addr <ip>`
+
+> 创建数据表 `docker run --rm -it -e DJANGO_DB_HOST=<ip> -e TSRTMP_DB_HOST=<ip> vod:latest python init_database.py`
+
+> 收集静态资源文件`docker run --rm -it -e DJANGO_DB_HOST=<ip> -e TSRTMP_DB_HOST=<ip> vod:latest python manage.py collectstatic`
+>
+> 创建管理员帐号 `docker run --rm -it -e DJANGO_DB_HOST=<ip> -e TSRTMP_DB_HOST=<ip> vod:latest python manage.py createsuperuser`
+>
+
+
 
 更新和运行服务程序需要执行以下步骤：
 > 更新docker service信息： `cd /home/share/vod && docker stack deploy -c docker-compose.yml vod`
