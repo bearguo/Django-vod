@@ -164,7 +164,7 @@ REST_FRAMEWORK = {
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 LANGUAGE_CODE = 'zh-Hans'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
@@ -180,8 +180,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # 电视回看节目.m3u8和.ts文件的转储文件夹
-RECORD_MEDIA_FOLDER = 'record'
-RECORD_MEDIA_ROOT = os.path.join(MEDIA_ROOT, RECORD_MEDIA_FOLDER)
+RECORD_MEDIA_FOLDER = '/record/'
+RECORD_MEDIA_ROOT = os.path.join(BASE_DIR,'record')
 
 # 本地上传文件存储位置，支持直接通过文件系统拷贝到该目录下，然后在管理页面上直接选择该目录下的文件
 LOCAL_FOLDER_NAME = 'local_file'

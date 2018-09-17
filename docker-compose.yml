@@ -32,7 +32,8 @@ services:
       restart_policy:
         condition: on-failure
     volumes:
-      - /home/share/vod/media:/app/media
+      - /home/share/vod/media:/app/media    #path of upload media
+      - /home/share/vod/record:/app/record  #path of record media
       - /home/share/vod/static:/app/static
       - /media/tongshi:/media/tongshi
     environment:
