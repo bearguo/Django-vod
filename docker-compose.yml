@@ -26,7 +26,7 @@ services:
   vod:
     depends_on:
       - vod_db
-    image: vod:latest
+    image: bearguo/vod
     deploy:
       replicas: 3
       restart_policy:
