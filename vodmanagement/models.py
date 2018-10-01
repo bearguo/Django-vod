@@ -3,6 +3,8 @@ import os
 import datetime
 import six
 import humanfriendly
+import threading
+import vodmanagement.ffmpy as ffmpy
 from pathlib import Path
 from django.db import models
 from django.utils.html import format_html
@@ -266,7 +268,18 @@ class Vod(models.Model):
         ordering = ["-timestamp", "-updated"]
 
     def save(self, without_valid=False, *args, **kwargs):
-        logging.debug('==== 保存点播节目 %s ====' % self.title)
+
+        def ff(obj):
+            video_path = Path(settings.BASE_DIR) / Path(settings.MEDIA_ROOT) / Path(self.video.name).relative_to(settings.MEDIA_URL)
+            transcode = ffmpy.FFmpeg(
+                inputs = {str(video_path) : '-y'},
+                outputs = {str(video_path.with_suffix('.mp4')) : '-vcodec h264 -acodec aac -strict -2'}
+            )
+            if transcode.run() == 0:
+                video_name_new = Path(obj.video.name).with_suffix('.mp4')
+                obj.video.name = str(video_name_new)
+                obj.save()
+        
         p = Pinyin()
         full_pinyin = p.get_pinyin(smart_str(self.title), '')
         first_pinyin = p.get_initials(smart_str(self.title), '').lower()
@@ -285,6 +298,11 @@ class Vod(models.Model):
             ret = super(Vod, self).save(*args, **kwargs)
             return ret
         super(Vod, self).save(*args, **kwargs)
+
+        if os.path.splitext(str(self.video))[1] != '.mp4':
+            p = threading.Thread(target=ff, args=(self,))
+            p.start()
+
         try:
             if self.video != None and self.video != '':
                 relative_path = Path(self.video.name).relative_to(settings.MEDIA_URL)  # Djan%20go.mp4

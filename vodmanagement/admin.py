@@ -8,6 +8,7 @@ from django.core import serializers as django_serializers
 from django.http import HttpResponse
 from django.contrib import messages
 from uuslug import uuslug
+from vodmanagement import ffmpy
 
 from vodmanagement.forms import RestoreForm, CategoryAdminForm, VodForm, MultipleUploadForm
 from vodmanagement.models import (
@@ -150,24 +151,19 @@ class VodModelAdmin(admin.ModelAdmin):
 
     def transcoding(self, request, queryset):
         def ff(obj):
-            # TODO: 没有检测ffmpeg命令是否执行成功，如果失败会删除掉源文件
             video_path = Path(obj.video.path)
-            ffmpeg_cmd = ''.join([
-                'ffmpeg -y -i \"',
-                str(video_path),
-                '\" -vcodec copy -acodec copy \"',
-                str(video_path.with_suffix('.mp4')),
-                '\"'
-            ])
-            os.system(ffmpeg_cmd)
-            os.remove(str(video_path))
-            video_name_new = Path(obj.video.name).with_suffix('.mp4')
-            obj.video.name = str(video_name_new)
-            obj.save()
-
+            transcode = ffmpy.FFmpeg(
+                inputs = {str(video_path) : '-y'},
+                outputs = {str(video_path.with_suffix('.mp4')) : '-vcodec h264 -acodec aac -strict -2'}
+            )
+            if transcode.run() == 0:
+                os.remove(str(video_path))
+                video_name_new = Path(obj.video.name).with_suffix('.mp4')
+                obj.video.name = str(video_name_new)
+                obj.save()
         for obj in queryset:
-            if Path(obj.video.name).suffix != '.mp4':
-                p = threading.Thread(target=ff, args=(obj,))
+            if os.path.splitext(str(obj.video))[1] != '.mp4':
+                p = threading.Thread(target = ff,args = (obj,))
                 p.start()
         self.message_user(request, '视频已提交后台转码'
                           , messages.SUCCESS)
