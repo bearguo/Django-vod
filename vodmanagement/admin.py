@@ -61,7 +61,7 @@ class VodModelAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         # obj.creator = request.user
         super(VodModelAdmin, self).save_model(request, obj, form, change)
-
+    
     def delete_model(self, request, object):
         try:
             delete_hard(object.image.path)
@@ -72,7 +72,7 @@ class VodModelAdmin(admin.ModelAdmin):
         except:
             pass
         object.delete()
-
+    
     def delete_hard(self, request, queryset):
         for obj in queryset:
             try:
@@ -120,6 +120,7 @@ class VodModelAdmin(admin.ModelAdmin):
         queryset.update(view_count=0)
         self.message_user(request, '%s item successfully cleared view count.' % queryset.count()
                           , messages.SUCCESS)
+    clear_view_count.short_description = '重置播放次数'
 
     def backup(self, request, queryset):
         response = HttpResponse(content_type='text/plain')
