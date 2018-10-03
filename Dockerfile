@@ -426,9 +426,9 @@ ENV DJANGO_PORT=8000 \
   #set time out!!!!!
   DJANGO_SETTINGS_MODULE=mysite.settings \
   # which settings file should Django use
-  DJANGO_WSGI_MODULE=mysite.wsgi
+  DJANGO_WSGI_MODULE=mysite.wsgi 
   # WSGI module name
-
+  
 RUN apk add --no-cache curl
 HEALTHCHECK --interval=30s --timeout=3s CMD curl -fs http://localhost:$DJANGO_PORT/admin || exit 1
 

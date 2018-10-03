@@ -151,16 +151,19 @@ class VodModelAdmin(admin.ModelAdmin):
 
     def transcoding(self, request, queryset):
         def ff(obj):
-            video_path = Path(obj.video.path)
+            recent_path=os.getcwd()
+            os.chdir('/')
             transcode = ffmpy.FFmpeg(
-                inputs = {str(video_path) : '-y'},
-                outputs = {str(video_path.with_suffix('.mp4')) : '-vcodec h264 -acodec aac -strict -2'}
+                inputs={str(obj.video.path) : '-y'},
+                outputs = {str(Path(obj.video.path).with_suffix('.mp4')) : '-vcodec h264 -acodec aac -strict -2'}
             )
             if transcode.run() == 0:
-                os.remove(str(video_path))
+                logging.debug("transcode",str(obj.video.path))
+                os.remove(str(Path(settings.BASE_DIR) / Path(settings.MEDIA_ROOT) / Path(self.video.name)))
                 video_name_new = Path(obj.video.name).with_suffix('.mp4')
                 obj.video.name = str(video_name_new)
                 obj.save()
+            os.chdir(recent_path)
         for obj in queryset:
             if os.path.splitext(str(obj.video))[1] != '.mp4':
                 p = threading.Thread(target = ff,args = (obj,))
