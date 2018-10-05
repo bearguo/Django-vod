@@ -13,7 +13,7 @@
 
 初次部署服务需要执行以下步骤：
 
-> 创建运行需要挂载的目录 `mkdir -p /home/share/vod/media && mkdir -p /home/share/vod/static && mkdir -p /home/share/vod/record`
+> 创建运行需要挂载的目录 `mkdir -p /home/share/vod/media && mkdir -p /home/share/vod/static && mkdir -p /home/share/vod/logs`
 
 > 初始化docker swarm 集群 `docker swarm init --advertise-addr <ip>`
 
@@ -26,8 +26,6 @@
 
 更新和运行服务程序需要执行以下步骤：
 > 更新docker service信息： `cd /home/share/vod && docker stack deploy -c docker-compose.yml vod`
-
->如硬盘空间不足，请将新硬盘挂载于 '/home/share/vod/media'(上传文件路径)'/home/share/vod/media'(录制文件路径)
 
 执行`docker service ls`观察运行情况,下面是运行成功后的状态:
 ```bash
