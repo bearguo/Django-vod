@@ -26,14 +26,14 @@ services:
   vod:
     depends_on:
       - vod_db
-    image: bearguo/vod
+    image: vod
     deploy:
       replicas: 3
       restart_policy:
         condition: on-failure
     volumes:
-      - /home/share/vod/media:/app/media    #path of upload media
-      - /home/share/vod/record:/app/record  #path of record media
+      - /home/share/vod/media:/app/media    
+      - /home/share/vod/logs:/app/logs
       - /home/share/vod/static:/app/static
       - /media/tongshi:/media/tongshi
     environment:
