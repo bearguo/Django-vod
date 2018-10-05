@@ -169,7 +169,7 @@ class VodModelAdmin(admin.ModelAdmin):
             video_abspath=obj.video.path
             transcode = ffmpy.FFmpeg(
                 inputs={str(obj.video.path) : '-y'},
-                outputs = {str(Path(obj.video.path).with_suffix('.mp4')) : '-vcodec h264 -acodec aac -strict -2'}
+                outputs = {str(Path(obj.video.path).with_suffix('.mp4')) : '-vcodec h264 -acodec aac -threads 2'}
             )
             os.chdir(recent_path)
             if transcode.run() == 0:
