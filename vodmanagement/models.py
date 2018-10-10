@@ -306,7 +306,7 @@ class Vod(models.Model):
             return ret
         super(Vod, self).save(*args, **kwargs)
 
-        if os.path.splitext(str(self.video))[1] != '.mp4':
+        if os.path.splitext(str(self.video))[1] not in ['.mp4','.m3u8']:
             p = threading.Thread(target=ff, args=(self,))
             p.start()
 
