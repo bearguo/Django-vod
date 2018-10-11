@@ -83,7 +83,6 @@ class VodModelAdmin(admin.ModelAdmin):
             try:
                 if os.path.splitext(str(obj.video))[1] == '.m3u8':
                     obj_ts=(m3u8.load(str(obj.video.path))).files
-
                     for ts_file in obj_ts:
                         try:
                             ts_path = Path(os.path.dirname(obj.video.path)) / Path(ts_file)
