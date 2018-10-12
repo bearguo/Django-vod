@@ -86,7 +86,7 @@ class VodModelAdmin(admin.ModelAdmin):
                     for ts_file in obj_ts:
                         try:
                             ts_path = Path(os.path.dirname(obj.video.path)) / Path(ts_file)
-                            os.remove(ts_path)
+                            os.remove(str(ts_path))
                         except:
                             pass
                 delete_hard(obj.video.path)   
