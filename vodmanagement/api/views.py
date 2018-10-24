@@ -165,11 +165,14 @@ class HomeOverViewAPIView(APIView):
         length = self.request.query_params.get('length')
         try:
             if category is not None:
-                if length is None: length = 4
+                try:
+                    length_int = int(length)
+                except:
+                    length_int = 4
                 videos = get_all_videos(None).filter(
                     Q(category__subset__name=category) |
                     Q(category__name=category)
-                )[:int(length)]
+                )[:int(length_int)]
                 if not videos:
                     raise ValueError('视频列表为空,请检查分类名称')
                 overview_videos = VodListSerializer(videos, many=True).data

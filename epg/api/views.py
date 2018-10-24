@@ -1,5 +1,6 @@
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 from epg.api.serializers import *
 from epg.models import Channel, Program
 
@@ -34,5 +35,12 @@ class ProgramListAPIView(ListAPIView):
     '''
     def get_queryset(self, *args, **kwargs):
         channel = self.request.query_params.get('channel')
-        query_set = Program.objects.filter(channel=channel)
-        return query_set
+        length = self.request.query_params.get('length')
+        
+        try:
+            length_int = int(length)
+        except:
+            length_int = 4
+        query_set = Program.objects.filter(channel=channel)[:length_int]
+        return query_set[:length_int]
+        
