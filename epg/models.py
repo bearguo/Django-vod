@@ -11,6 +11,7 @@ class Channel(models.Model):
     PGID = models.IntegerField(null=True, blank=True)
     client_ip = models.CharField(max_length=50, null=True, blank=True)
     sort = models.IntegerField(null=False, blank=True, default=0)
+    shared = models.BooleanField(default=0)
 
     class Meta:
         managed = False
