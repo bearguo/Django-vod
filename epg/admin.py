@@ -14,10 +14,32 @@ from epg.utils import download_m3u8_files
 
 @admin.register(Channel)
 class ChannelModelAdmin(admin.ModelAdmin):
-    list_display = ['channel_id', 'channel_name', 'rtmp_url']
+    list_display = ['channel_id', 'channel_name', 'rtmp_url', 'shared']
     list_display_links = ['channel_id']  # image_tag
     list_editable = ['channel_name', 'rtmp_url']
     search_fields = ['channel_id', 'channel_name']
+    actions = ['share_channel', 'stop_share_channel']
+
+    def share_channel(self, request, queryset):
+        for obj in queryset:
+            obj.shared = 1
+            obj.save()
+        self.message_user(request, '%s个频道已共享.' % queryset.count()
+                          , messages.SUCCESS)
+
+    share_channel.short_description = '共享频道'
+
+    def stop_share_channel(self, request, queryset):
+        for obj in queryset:
+            obj.shared = 0
+            obj.save()
+        self.message_user(request, '%s个频道取消共享.' % queryset.count()
+                          , messages.SUCCESS)
+
+    stop_share_channel.short_description = '取消共享频道'
+            
+
+
 
 
 @admin.register(Program)
