@@ -36,11 +36,18 @@ class ProgramListAPIView(ListAPIView):
     def get_queryset(self, *args, **kwargs):
         channel = self.request.query_params.get('channel')
         length = self.request.query_params.get('length')
-        
+        finished = self.request.query_params.get('finished')
+        if finished == '1':
+            finished = True
+        elif finished == '0':
+            finished = False
         try:
             length_int = int(length)
         except:
             length_int = 4
-        query_set = Program.objects.filter(channel=channel)[:length_int]
+        if isinstance(finished,bool):
+            query_set = Program.objects.filter(channel=channel).filter(finished=finished)[:length_int]
+        else:
+            query_set = Program.objects.filter(channel=channel)[:length_int]
         return query_set[:length_int]
         
