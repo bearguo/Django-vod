@@ -8,7 +8,6 @@ from django.core import serializers as django_serializers
 from django.http import HttpResponse
 from django.contrib import messages
 from uuslug import uuslug
-from vodmanagement import ffmpy
 from transcode import ff
 import m3u8
 

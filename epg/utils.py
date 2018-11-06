@@ -5,10 +5,24 @@ from time import sleep
 from urllib.parse import urlparse, urljoin
 from urllib.request import urlretrieve, pathname2url
 
-from mysite import settings
 from vodmanagement.models import Vod
+import ffmpy
 
+def download_m3u8_files(id,url_str,dest_dir):
+    obj = Vod.objects.get(id=id)
+    video_path = Path(dest_dir) / Path(urlparse(url_str)).with_suffix('.mp4')
+    transcode = ffmpy.FFmpeg(
+        inputs={str(url_str) : '-y'},
+        outputs = {str(video_path) : '-vcodec h264 -acodec aac -threads 2'}
+        )
+    try:
+        if transcode.run == 0:
+            obj.active = 1
+            obj.save
+    except:
+        logging.error('Download m3u8(%s) files failed' % url_str)
 
+'''
 def download_m3u8_files(id, url_str, dest_dir):
     try:
         instance = Vod.objects.get(id=id)
@@ -50,7 +64,4 @@ def download_ts_file(url, dest_path):
             sleep(1)
             retry -= 1
     return None
-
-
-if __name__ == '__main__':
-    download_m3u8_files(None, 'http://1.8.90.63/ZJTV1/20170709/7PHQ701574750.m3u8', settings.RECORD_MEDIA_ROOT)
+'''

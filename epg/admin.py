@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.contrib import messages
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from pathlib import Path
 
 from mysite import settings
 from vodmanagement.models import Vod
@@ -61,6 +62,7 @@ class ProgramModelAdmin(admin.ModelAdmin):
         for program in queryset:
             try:
                 m3u8_file_path = parse.urlparse(program.url).path  # /CCTV1/20180124/123456.m3u8
+                mp4_file_path = Path(m3u8_file_path).with_suffix('.mp4')
                 urlopen(program.url, timeout=5)
                 print(m3u8_file_path)
             except Exception as e:
@@ -68,7 +70,7 @@ class ProgramModelAdmin(admin.ModelAdmin):
                 continue
             new_record = Vod(
                 title=program.title,
-                video=settings.RECORD_MEDIA_FOLDER + m3u8_file_path
+                video=settings.RECORD_MEDIA_FOLDER + str(mp4_file_path)
                 )
             new_record.save()
             p = threading.Thread(target=download_m3u8_files, args=(new_record.id, program.url, settings.RECORD_MEDIA_ROOT))

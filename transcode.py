@@ -1,4 +1,4 @@
-import vodmanagement.ffmpy as ffmpy
+import ffmpy
 import os
 from pathlib import Path
 import logging
