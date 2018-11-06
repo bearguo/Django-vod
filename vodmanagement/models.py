@@ -4,7 +4,7 @@ import datetime
 import six
 import humanfriendly
 import threading
-import vodmanagement.ffmpy as ffmpy
+from transcode import ff
 from pathlib import Path
 from django.db import models
 from django.utils.html import format_html
@@ -268,25 +268,6 @@ class Vod(models.Model):
         ordering = ["-timestamp", "-updated"]
 
     def save(self, without_valid=False, *args, **kwargs):
-
-        def ff(obj):
-            video_path=obj.video.name
-            recent_path=os.getcwd()
-            print(video_path)
-            os.chdir('/')
-            video_abspath=obj.video.path
-            transcode = ffmpy.FFmpeg(
-                inputs={str(obj.video.path) : '-y'},
-                outputs = {str(Path(obj.video.path).with_suffix('.mp4')) : '-vcodec h264 -acodec aac -threads 2'}
-            )
-            os.chdir(recent_path)
-            if transcode.run() == 0:
-                logging.debug("transcode",str(obj.video.path))
-                os.remove(str(video_abspath))
-                video_name_new = Path(video_path).with_suffix('.mp4')
-                obj.video.name = str(video_name_new)
-                obj.save()
-        
         p = Pinyin()
         full_pinyin = p.get_pinyin(smart_str(self.title), '')
         first_pinyin = p.get_initials(smart_str(self.title), '').lower()
