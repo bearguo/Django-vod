@@ -2,18 +2,18 @@ import logging
 import m3u8
 from pathlib import Path
 from time import sleep
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse, urljoin, quote, unquote
 from urllib.request import urlretrieve, pathname2url
-
 from vodmanagement.models import Vod
 import ffmpy
 
 def download_m3u8_files(id,url_str,dest_dir):
     obj = Vod.objects.get(id=id)
-    video_path = Path(dest_dir) / Path(urlparse(url_str)).with_suffix('.mp4')
+    tag_url = "\"" + str(url_str) + "\""
+    video_path = "\"" + str(Path(dest_dir) / Path(urlparse(url_str).path).with_suffix('.mp4')) + "\""
     transcode = ffmpy.FFmpeg(
-        inputs={str(url_str) : '-y'},
-        outputs = {str(video_path) : '-vcodec h264 -acodec aac -threads 2'}
+        inputs={tag_url : '-y'},
+        outputs = {video_path : '-vcodec h264 -acodec aac -threads 2'}
         )
     try:
         if transcode.run == 0:
