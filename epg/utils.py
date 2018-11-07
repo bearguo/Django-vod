@@ -8,13 +8,12 @@ from vodmanagement.models import Vod
 import ffmpy
 
 def download_m3u8_files(id,url_str,dest_dir):
-    obj = Vod.objects.get(id=id)
-    tag_url =  + str(url_str) + 
+    obj = Vod.objects.get(id=id) 
     print(tag_url)
     video_path = Path(dest_dir) / Path(urlparse(url_str).path).with_suffix('.mp4')
     print(video_path)
     transcode = ffmpy.FFmpeg(
-        inputs={tag_url : '-y'},
+        inputs={str(url_str) : '-y'},
         outputs = {video_path : '-vcodec h264 -acodec aac -threads 2'}
         )
     print(transcode.cmd)
