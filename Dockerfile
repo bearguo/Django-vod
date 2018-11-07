@@ -46,8 +46,6 @@ RUN apk add --no-cache \
   rm /usr/include/xlocale.h && \
   apk del .build-dependencies
 
-COPY . /app
-
 RUN ln -s /bin/sh /bin/bash
 
 ENV DJANGO_PORT=8000 \
@@ -71,6 +69,8 @@ ENV DJANGO_PORT=8000 \
   
 RUN apk add --no-cache curl
 HEALTHCHECK --interval=30s --timeout=3s CMD curl -fs http://localhost:$DJANGO_PORT/admin || exit 1
+
+COPY . /app
 
 EXPOSE 8000
 ENTRYPOINT ["sh", "entrypoint.sh"]
