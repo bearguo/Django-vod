@@ -62,7 +62,7 @@ class ProgramModelAdmin(admin.ModelAdmin):
         for program in queryset:
             try:
                 m3u8_file_path = parse.urlparse(program.url).path  # /CCTV1/20180124/123456.m3u8
-                mp4_file_path = Path(m3u8_file_path).with_suffix('.mp4')
+                mp4_file_path = Path(m3u8_file_path).parent / Path(program.title).with_suffix('.mp4') # /CCTV1/20180124/<title>.mp4
                 urlopen(program.url, timeout=5)
                 print(m3u8_file_path)
             except Exception as e:
