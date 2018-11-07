@@ -9,9 +9,9 @@ import ffmpy
 
 def download_m3u8_files(id,url_str,dest_dir):
     obj = Vod.objects.get(id=id)
-    tag_url = '"' + str(url_str) + '"'
+    tag_url =  + str(url_str) + 
     print(tag_url)
-    video_path = '"' + str(Path(dest_dir) / Path(urlparse(url_str).path).with_suffix('.mp4')) + '"'
+    video_path = Path(dest_dir) / Path(urlparse(url_str).path).with_suffix('.mp4')
     print(video_path)
     transcode = ffmpy.FFmpeg(
         inputs={tag_url : '-y'},
