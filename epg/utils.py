@@ -10,11 +10,14 @@ import ffmpy
 def download_m3u8_files(id,url_str,dest_dir):
     obj = Vod.objects.get(id=id)
     tag_url = "\"" + str(url_str) + "\""
+    print(tag_url)
     video_path = "\"" + str(Path(dest_dir) / Path(urlparse(url_str).path).with_suffix('.mp4')) + "\""
+    print(video_path)
     transcode = ffmpy.FFmpeg(
         inputs={tag_url : '-y'},
         outputs = {video_path : '-vcodec h264 -acodec aac -threads 2'}
         )
+    print(transcode.cmd)
     try:
         if transcode.run == 0:
             obj.active = 1
