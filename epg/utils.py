@@ -9,20 +9,15 @@ import ffmpy
 
 def download_m3u8_files(id,url_str,dest_dir):
     obj = Vod.objects.get(id=id) 
-    print(url_str)
-    video_path = Path(dest_dir) / Path(urlparse(url_str).path).with_suffix('.mp4')
-    print(video_path)
+    video_path = Path(dest_dir) / Path(urlparse(url_str).path[1:]).with_suffix('.mp4')
+    video_path.parent.mkdir(parents=True, exist_ok=True)
     transcode = ffmpy.FFmpeg(
-        inputs={str(url_str) : '-y'},
-        outputs = {video_path : '-vcodec h264 -acodec aac -threads 2'}
+        inputs = {str(url_str) : '-y'},
+        outputs = {str(video_path) : '-vcodec h264 -acodec aac -threads 2'}
         )
-    print(transcode.cmd)
-    try:
-        if transcode.run == 0:
-            obj.active = 1
-            obj.save
-    except:
-        logging.error('Download m3u8(%s) files failed' % url_str)
+    if transcode.run() == 0:
+        obj.active = 1
+        obj.save
 
 '''
 def download_m3u8_files(id, url_str, dest_dir):
