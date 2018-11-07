@@ -1,15 +1,11 @@
-import logging
-import m3u8
 from pathlib import Path
-from time import sleep
-from urllib.parse import urlparse, urljoin, quote, unquote
-from urllib.request import urlretrieve, pathname2url
+from urllib.parse import urlparse
 from vodmanagement.models import Vod
 import ffmpy
 
-def download_m3u8_files(id,url_str,dest_dir):
+def download_m3u8_files(id,url_str,dest_dir,title):
     obj = Vod.objects.get(id=id) 
-    video_path = Path(dest_dir) / Path(urlparse(url_str).path[1:]).with_suffix('.mp4')
+    video_path = Path(dest_dir) / Path(urlparse(url_str).path[1:]).parent / Path(title).with_suffix('.mp4')
     video_path.parent.mkdir(parents=True, exist_ok=True)
     transcode = ffmpy.FFmpeg(
         inputs = {str(url_str) : '-y'},

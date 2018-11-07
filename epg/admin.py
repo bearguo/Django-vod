@@ -73,7 +73,7 @@ class ProgramModelAdmin(admin.ModelAdmin):
                 video=settings.RECORD_MEDIA_FOLDER + str(mp4_file_path)
                 )
             new_record.save()
-            p = threading.Thread(target=download_m3u8_files, args=(new_record.id, program.url, settings.RECORD_MEDIA_ROOT))
+            p = threading.Thread(target=download_m3u8_files, args=(new_record.id, program.url, settings.RECORD_MEDIA_ROOT, program.title))
             p.start()
             legal_program_cnt += 1
             print('start downloading m3u8 files', program.url)
