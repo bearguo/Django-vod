@@ -58,7 +58,7 @@ class ProgramModelAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super(ProgramModelAdmin, self).get_queryset(request).filter(finished=1)
 
-    def test_record(self, request):
+    def test_record(self, request, queryset):
         auto_record()
 
     def record(self, request, queryset):
