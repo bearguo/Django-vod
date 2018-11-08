@@ -11,6 +11,7 @@ from mysite import settings
 from vodmanagement.models import Vod
 from epg.models import Channel, Program
 from epg.utils import download_m3u8_files
+from epg.cron import auto_record
 
 
 @admin.register(Channel)
@@ -57,12 +58,15 @@ class ProgramModelAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super(ProgramModelAdmin, self).get_queryset(request).filter(finished=1)
 
+    def test_record(self, request):
+        auto_record()
+
     def record(self, request, queryset):
         legal_program_cnt = 0
         for program in queryset:
             try:
                 m3u8_file_path = parse.urlparse(program.url).path  # /CCTV1/20180124/123456.m3u8
-                mp4_file_path = Path(m3u8_file_path).parent / Path(program.title).with_suffix('.mp4') # /CCTV1/20180124/<title>.mp4
+            #    mp4_file_path = Path(m3u8_file_path).parent / Path(program.title).with_suffix('.mp4') # /CCTV1/20180124/<title>.mp4
                 urlopen(program.url, timeout=5)
                 print(m3u8_file_path)
             except Exception as e:
@@ -70,13 +74,12 @@ class ProgramModelAdmin(admin.ModelAdmin):
                 continue
             new_record = Vod(
                 title=program.title,
-                video=settings.RECORD_MEDIA_FOLDER + str(mp4_file_path)
+                video=settings.RECORD_MEDIA_FOLDER + m3u8_file_path
                 )
             new_record.save()
-            p = threading.Thread(target=download_m3u8_files, args=(new_record.id, program.url, settings.RECORD_MEDIA_ROOT, program.title))
+            p = threading.Thread(target=download_m3u8_files, args=(new_record.id, program.url, settings.RECORD_MEDIA_ROOT))
             p.start()
             legal_program_cnt += 1
-            print('start downloading m3u8 files', program.url)
         record_url = reverse('admin:vodmanagement_vod_changelist')
         print(record_url)
         self.message_user(request, mark_safe('%s/%s 个节目正在转成点播,转换进度请到<a href="%s">录制节目</a>处查看。'%(legal_program_cnt,queryset.count(),record_url))

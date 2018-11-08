@@ -2,8 +2,8 @@ from pathlib import Path
 from urllib.parse import urlparse
 from vodmanagement.models import Vod
 import ffmpy
-
-def download_m3u8_files(id,url_str,dest_dir,title):
+'''
+def download_mp4_files(id,url_str,dest_dir,title):
     obj = Vod.objects.get(id=id) 
     video_path = Path(dest_dir) / Path(urlparse(url_str).path[1:]).parent / Path(title).with_suffix('.mp4')
     video_path.parent.mkdir(parents=True, exist_ok=True)
@@ -57,4 +57,3 @@ def download_ts_file(url, dest_path):
             sleep(1)
             retry -= 1
     return None
-'''

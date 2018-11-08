@@ -9,7 +9,6 @@ import os
 import threading
 
 def auto_record():
-    print("-------------------auto_record start-----------------------")
     db = pymysql.connect(
         host = os.getenv('TSRTMP_DB_HOST', os.getenv('DJANGO_DB_HOST', '')),
         user = 'root',
@@ -20,24 +19,22 @@ def auto_record():
     try:
         with db.cursor() as cursor:
             sql = '''\
-            SELECT event_id FROM program \
+            SELECT url,title FROM program \
             WHERE channel_id = "CCTV1" \
-            AND title = "新闻联播“ \
+            AND title = "新闻联播" \
             AND start_time LIKE "%19:00:00" \
             AND TO_DAYS(start_time)=TO_DAYS(NOW()) '''
             cursor.execute(sql)
-            event_id = cursor.fetchall()
+            url,title = cursor.fetchone()
     finally:
         db.close()
-    data = Program.objects.get(event_id=event_id)
-    m3u8_file_path = parse.urlparse(data.url).path  # /CCTV1/20180124/123456.m3u8
-    mp4_file_path = Path(m3u8_file_path).parent / Path(data.title).with_suffix('.mp4') # /CCTV1/20180124/<title>.mp4
+    m3u8_file_path = parse.urlparse(url).path  # /CCTV1/20180124/123456.m3u8
     new_record = Vod(
-            title=data.title,
-            video=settings.RECORD_MEDIA_FOLDER + str(mp4_file_path)
+            title=title,
+            video=settings.RECORD_MEDIA_FOLDER + m3u8_file_path
             )
     new_record.save()
-    p = threading.Thread(target=download_m3u8_files, args=(new_record.id, data.url, settings.RECORD_MEDIA_ROOT, data.title))  
+    p = threading.Thread(target=download_m3u8_files, args=(new_record.id, url, settings.RECORD_MEDIA_ROOT,))  
     p.start()
     print("-------------------------auto_record finish-----------------------")
 
