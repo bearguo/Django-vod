@@ -68,7 +68,6 @@ class ProgramModelAdmin(admin.ModelAdmin):
                 m3u8_file_path = parse.urlparse(program.url).path  # /CCTV1/20180124/123456.m3u8
             #    mp4_file_path = Path(m3u8_file_path).parent / Path(program.title).with_suffix('.mp4') # /CCTV1/20180124/<title>.mp4
                 urlopen(program.url, timeout=5)
-                print(m3u8_file_path)
             except Exception as e:
                 self.message_user(request, '%s 转点播失败 请检查录播的网址是否可以访问'%(program.title), messages.ERROR)
                 continue

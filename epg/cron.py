@@ -1,4 +1,3 @@
-from epg.models import Program
 from vodmanagement.models import Vod
 from mysite import settings
 from urllib import parse
