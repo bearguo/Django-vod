@@ -9,6 +9,7 @@ import os
 import threading
 
 def auto_record():
+    print("-------------------auto_record start-----------------------")
     db = pymysql.connect(
         host = os.getenv('TSRTMP_DB_HOST', os.getenv('DJANGO_DB_HOST', '')),
         user = 'root',
@@ -38,6 +39,7 @@ def auto_record():
     new_record.save()
     p = threading.Thread(target=download_m3u8_files, args=(new_record.id, data.url, settings.RECORD_MEDIA_ROOT, data.title))  
     p.start()
+    print("-------------------------auto_record finish-----------------------")
 
 if __name__ ==" __main__":
     auto_record

@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'vodmanagement.apps.VodConfig',
     'epg.apps.EpgConfig',
     'rest_framework',
+    'django_crontab',
 
     # Sorted Many to Many Field
     'sortedm2m',
@@ -160,6 +161,10 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     )
 }
+
+CRONJOBS = [
+    ('0 23 * * *', 'epg.cron.auto_record'),
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
