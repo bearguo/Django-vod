@@ -13,7 +13,7 @@ def download_m3u8_files(id,url_str,dest_dir,title):
         )
     if transcode.run() == 0:
         obj.active = 1
-        obj.save
+        obj.save()
 
 '''
 def download_m3u8_files(id, url_str, dest_dir):
