@@ -1,7 +1,11 @@
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.request import urlretrieve, pathname2url
+from urllib.parse import urlparse,urljoin
 from vodmanagement.models import Vod
 import ffmpy
+import m3u8
+import logging
+from time import sleep
 '''
 def download_mp4_files(id,url_str,dest_dir,title):
     obj = Vod.objects.get(id=id) 
