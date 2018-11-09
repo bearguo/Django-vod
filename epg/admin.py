@@ -11,7 +11,7 @@ from mysite import settings
 from vodmanagement.models import Vod
 from epg.models import Channel, Program
 from epg.utils import download_m3u8_files
-from epg.cron import auto_record
+from epg.cron import get_program
 
 
 @admin.register(Channel)
@@ -59,7 +59,7 @@ class ProgramModelAdmin(admin.ModelAdmin):
         return super(ProgramModelAdmin, self).get_queryset(request).filter(finished=1)
 
     def test_record(self, request, queryset):
-        auto_record()
+        get_program()
 
     def record(self, request, queryset):
         legal_program_cnt = 0
