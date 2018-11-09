@@ -23,7 +23,7 @@ def get_program():
             title.append(cf.get(obj, 'title'))
             channel_id.append(cf.get(obj,'channel_id'))
     p = threading.Thread(target=auto_record, args=(title, channel_id))
-    p.start
+    p.start()
     #auto_record(title, channel_id)
 
 @retry(tries=3, delay=1800)
