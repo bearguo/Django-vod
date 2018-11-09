@@ -8,11 +8,12 @@ import threading
 from retry import retry
 import configparser
 import mysite.settings as settings
+import threading
 
 def get_program():
     cf = configparser.ConfigParser()
     config_file = Path(settings.BASE_DIR) / 'conf' / 'auto_record.conf'
-    cf.read(config_file)
+    cf.read(str(config_file))
     title = []
     channel_id = []
     if len(cf.sections()) == 0:
@@ -21,7 +22,9 @@ def get_program():
         for obj in cf.sections():
             title.append(cf.get(obj, 'title'))
             channel_id.append(cf.get(obj,'channel_id'))
-    auto_record(title, channel_id)
+    p = threading.Thread(target=auto_record, args=(title, channel_id))
+    p.start
+    #auto_record(title, channel_id)
 
 @retry(tries=3, delay=1800)
 def auto_record(title, channel_id):
@@ -39,17 +42,17 @@ def auto_record(title, channel_id):
         for i in range(0,len(title)):
             try:
                 with db.cursor() as cursor:
-                    sql = '''\
+                    sql = '\
                     SELECT url,title FROM program \
                     WHERE title LIKE %s \
                     AND channel_id = %s \
                     AND finished = 1 \
-                    AND TO_DAYS(NOW())-TO_DAYS(start_time) = 1 '''
-                cursor.execute(sql %(title[i], channel_id[i]))
+                    AND TO_DAYS(NOW())-TO_DAYS(start_time) = 1 ' \
+                    % (title[i], channel_id[i])
+                cursor.execute(sql)
                 url,program_title = cursor.fetchone()
             except Exception:
                 print("url not exist")
-                raise Exception("url not exist")
             else:
                 m3u8_file_path = parse.urlparse(url).path  # /CCTV1/20180124/123456.m3u8
                 new_record = Vod(
@@ -57,10 +60,11 @@ def auto_record(title, channel_id):
                         video=settings.RECORD_MEDIA_FOLDER + m3u8_file_path
                         )
                 new_record.save()
-                p = threading.Thread(target=download_m3u8_files, args=(new_record.id, url, settings.RECORD_MEDIA_ROOT,))  
-                p.start()
-            finally:
-                db.close()
+                #p = threading.Thread(target=download_m3u8_files, args=(new_record.id, url, settings.RECORD_MEDIA_ROOT,))
+                download_m3u8_files(new_record.id, url, settings.RECORD_MEDIA_ROOT)  
+                #p.start()
+    finally:
+        db.close()
 
 if __name__ ==" __main__":
     auto_record
