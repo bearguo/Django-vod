@@ -43,7 +43,8 @@ def auto_record(title, channel_id):
                     SELECT url,title FROM program \
                     WHERE title LIKE %s \
                     AND channel_id = %s \
-                    AND TO_DAYS(NOW())-TO_DAYS(start_time)=1 '''
+                    AND finished = 1 \
+                    AND TO_DAYS(NOW())-TO_DAYS(start_time) = 1 '''
                 cursor.execute(sql %(title[i], channel_id[i]))
                 url,program_title = cursor.fetchone()
             except Exception:
