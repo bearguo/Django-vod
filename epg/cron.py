@@ -67,6 +67,3 @@ def auto_record(title, channel_id):
                 download_m3u8_files(new_record.id, url[i], settings.RECORD_MEDIA_ROOT)
     finally:
         db.close()
-
-if __name__ ==" __main__":
-    auto_record
