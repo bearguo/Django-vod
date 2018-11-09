@@ -40,29 +40,31 @@ def auto_record(title, channel_id):
         print("No route to host")
     else:
         for i in range(0,len(title)):
-            try:
-                with db.cursor() as cursor:
-                    sql = '\
-                    SELECT url,title FROM program \
-                    WHERE title LIKE %s \
-                    AND channel_id = %s \
-                    AND finished = 1 \
-                    AND TO_DAYS(NOW())-TO_DAYS(start_time) = 1 ' \
-                    % (title[i], channel_id[i])
+            url = []
+            program_title = []
+            with db.cursor() as cursor:
+                sql = '\
+                SELECT url,title FROM program \
+                WHERE title LIKE %s \
+                AND channel_id = %s \
+                AND finished = 1 \
+                AND TO_DAYS(NOW())-TO_DAYS(start_time) = 1 ' \
+                % (title[i], channel_id[i])
                 cursor.execute(sql)
-                url,program_title = cursor.fetchone()
-            except Exception:
-                print("url not exist")
-            else:
-                m3u8_file_path = parse.urlparse(url).path  # /CCTV1/20180124/123456.m3u8
+
+                for obj in cursor.fetchall():
+                    url.append(obj[0])
+                    program_title.append(obj[1])
+                    
+            for i in range(0,len(url)):
+                m3u8_file_path = parse.urlparse(url[i]).path  # /CCTV1/20180124/123456.m3u8
                 new_record = Vod(
-                        title=program_title,
+                        title=program_title[i],
                         video=settings.RECORD_MEDIA_FOLDER + m3u8_file_path
                         )
                 new_record.save()
                 #p = threading.Thread(target=download_m3u8_files, args=(new_record.id, url, settings.RECORD_MEDIA_ROOT,))
-                download_m3u8_files(new_record.id, url, settings.RECORD_MEDIA_ROOT)  
-                #p.start()
+                download_m3u8_files(new_record.id, url[i], settings.RECORD_MEDIA_ROOT)
     finally:
         db.close()
 
