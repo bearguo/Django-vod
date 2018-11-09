@@ -53,7 +53,7 @@ class ProgramModelAdmin(admin.ModelAdmin):
     list_display_links = ['channel']
     list_filter = ['finished', 'channel']
     search_fields = ['title']
-    actions = ['record']
+    actions = ['record', 'test_record']
 
     def get_queryset(self, request):
         return super(ProgramModelAdmin, self).get_queryset(request).filter(finished=1)
