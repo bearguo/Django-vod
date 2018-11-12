@@ -1,7 +1,6 @@
 import ffmpy
 import os
 from pathlib import Path
-import logging
 def ff(obj):
     video_path=obj.video.name
     recent_path=os.getcwd()
@@ -13,7 +12,6 @@ def ff(obj):
         )
     os.chdir(recent_path)
     if transcode.run() == 0:
-        logging.debug("transcode",str(obj.video.path))
         os.remove(str(video_abspath))
         video_name_new = Path(video_path).with_suffix('.mp4')
         obj.video.name = str(video_name_new)
