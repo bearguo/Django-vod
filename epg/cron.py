@@ -26,7 +26,7 @@ def get_program():
     p.start()
     #auto_record(title, channel_id)
 
-@retry(tries=3, delay=1800)
+@retry(tries=30, delay=5*60)
 def auto_record(title, channel_id):
     try:
         db = pymysql.connect(
@@ -36,7 +36,7 @@ def auto_record(title, channel_id):
             charset = 'utf8mb4',
             db = 'tsrtmp'
         )
-    except Exception:
+    except Exception():
         print("No route to host")
     else:
         for i in range(0,len(title)):
@@ -48,13 +48,15 @@ def auto_record(title, channel_id):
                 WHERE title LIKE %s \
                 AND channel_id = %s \
                 AND finished = 1 \
-                AND TO_DAYS(NOW())-TO_DAYS(start_time) = 1 ' \
+                AND TO_DAYS(NOW())=TO_DAYS(start_time)' \
                 % (title[i], channel_id[i])
                 cursor.execute(sql)
 
                 for obj in cursor.fetchall():
                     url.append(obj[0])
                     program_title.append(obj[1])
+            if len(url) == 0:
+                raise Exception("No match program")
                     
             for i in range(0,len(url)):
                 m3u8_file_path = parse.urlparse(url[i]).path  # /CCTV1/20180124/123456.m3u8

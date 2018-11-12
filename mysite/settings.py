@@ -163,7 +163,7 @@ REST_FRAMEWORK = {
 }
 
 CRONJOBS = [
-    ('50 19 * * *', 'epg.cron.get_program'),
+    ('25 19 * * *', 'epg.cron.get_program'),
 ]
 
 # Internationalization
