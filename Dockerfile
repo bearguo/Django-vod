@@ -71,7 +71,7 @@ RUN apk add --no-cache curl
 HEALTHCHECK --interval=30s --timeout=3s CMD curl -fs http://localhost:$DJANGO_PORT/admin || exit 1
 
 COPY . /app
-RUN python manage.py crontab add
+
 EXPOSE 8000
 ENTRYPOINT ["sh", "entrypoint.sh"]
 
