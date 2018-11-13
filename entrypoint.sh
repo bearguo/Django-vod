@@ -19,4 +19,5 @@ if [ -z "$1" ];then
     --reload \
     --pid $PID_FILE
 fi
+python manage.py crontab add
 exec "$@"
