@@ -36,6 +36,7 @@ services:
       - /home/share/vod/logs:/app/logs
       - /home/share/vod/static:/app/static
       - /media/tongshi:/media/tongshi
+      - /home/share/vod/conf:/app/conf
     environment:
       DJANGO_DB_HOST: vod_db
       TSRTMP_DB_HOST: vod_db
