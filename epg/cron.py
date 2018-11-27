@@ -13,7 +13,7 @@ import threading
 def get_program():
     cf = configparser.ConfigParser()
     config_file = Path(settings.BASE_DIR) / 'conf' / 'auto_record.conf'
-    cf.read(str(config_file))
+    cf.read(config_file, encoding="utf-8")
     title = []
     channel_id = []
     if len(cf.sections()) == 0:
