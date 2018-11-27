@@ -11,6 +11,7 @@ import mysite.settings as settings
 import threading
 
 def get_program():
+    os.system("echo $(date) >> auto_record.log")
     cf = configparser.ConfigParser()
     config_file = Path(settings.BASE_DIR) / 'conf' / 'auto_record.conf'
     cf.read(config_file, encoding="utf-8")
