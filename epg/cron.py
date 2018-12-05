@@ -67,6 +67,7 @@ def auto_record(title, channel_id):
                     )
             new_record.save()
             p = threading.Thread(target=download_m3u8_files, args=(new_record.id, url[i], settings.RECORD_MEDIA_ROOT,))
+            p.start()
             #download_m3u8_files(new_record.id, url[i], settings.RECORD_MEDIA_ROOT)
     finally:
         db.close()
