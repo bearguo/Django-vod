@@ -23,9 +23,9 @@ def get_program():
         for obj in cf.sections():
             title.append(cf.get(obj, 'title'))
             channel_id.append(cf.get(obj,'channel_id'))
-    p = threading.Thread(target=auto_record, args=(title, channel_id))
-    p.start()
-    #auto_record(title, channel_id)
+    #p = threading.Thread(target=auto_record, args=(title, channel_id))
+    #p.start()
+    auto_record(title, channel_id)
 
 @retry(tries=30, delay=5*60)
 def auto_record(title, channel_id):
@@ -40,9 +40,9 @@ def auto_record(title, channel_id):
     except Exception():
         print("No route to host")
     else:
+        url = []
+        program_title = []
         for i in range(0,len(title)):
-            url = []
-            program_title = []
             with db.cursor() as cursor:
                 sql = '\
                 SELECT url,title FROM program \
@@ -56,17 +56,17 @@ def auto_record(title, channel_id):
                 for obj in cursor.fetchall():
                     url.append(obj[0])
                     program_title.append(obj[1])
-            if len(url) == 0:
-                raise Exception("No match program")
+        if len(url) == 0:
+            raise Exception("No match program")
                     
-            for i in range(0,len(url)):
-                m3u8_file_path = parse.urlparse(url[i]).path  # /CCTV1/20180124/123456.m3u8
-                new_record = Vod(
-                        title=program_title[i],
-                        video=settings.RECORD_MEDIA_FOLDER + m3u8_file_path
-                        )
-                new_record.save()
-                #p = threading.Thread(target=download_m3u8_files, args=(new_record.id, url, settings.RECORD_MEDIA_ROOT,))
-                download_m3u8_files(new_record.id, url[i], settings.RECORD_MEDIA_ROOT)
+        for i in range(0,len(url)):
+            m3u8_file_path = parse.urlparse(url[i]).path  # /CCTV1/20180124/123456.m3u8
+            new_record = Vod(
+                    title=program_title[i],
+                    video=settings.RECORD_MEDIA_FOLDER + m3u8_file_path
+                    )
+            new_record.save()
+            p = threading.Thread(target=download_m3u8_files, args=(new_record.id, url[i], settings.RECORD_MEDIA_ROOT,))
+            #download_m3u8_files(new_record.id, url[i], settings.RECORD_MEDIA_ROOT)
     finally:
         db.close()
