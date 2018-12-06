@@ -38,13 +38,17 @@ RUN apk add --no-cache \
   build-base python3-dev file && \
   apk add --no-cache jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev \
   tiff-dev tk-dev tcl-dev && \
+  apk add tzdata && \
+  ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \ 
+  echo "Asia/Shanghai" > /etc/timezone && \
   ln -s locale.h /usr/include/xlocale.h && \
   pip install -r /app/requirements.txt && \
   rm -r /root/.cache && \
   find /usr/lib/python3.*/ -name 'tests' -exec rm -r '{}' + && \
   find /usr/lib/python3.*/site-packages/ -name '*.so' -print -exec sh -c 'file "{}" | grep -q "not stripped" && strip -s "{}"' \; && \
   rm /usr/include/xlocale.h && \
-  apk del .build-dependencies
+  apk del .build-dependencies 
+
 
 RUN ln -s /bin/sh /bin/bash
 
