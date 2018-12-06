@@ -8,7 +8,6 @@ import threading
 from retry import retry
 import configparser
 import mysite.settings as settings
-import threading
 
 def get_program():
     os.system("echo $(date) >> auto_record.log")
