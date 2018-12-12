@@ -1,17 +1,16 @@
 import threading
+from pathlib import Path
 from urllib import parse
 from urllib.request import urlopen
-from django.contrib import admin
-from django.contrib import messages
+
+from django.contrib import admin, messages
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from pathlib import Path
 
-from mysite import settings
-from vodmanagement.models import Vod
 from epg.models import Channel, Program
 from epg.utils import download_m3u8_files
-from epg.cron import get_program
+from mysite import settings
+from vodmanagement.models import Vod
 
 
 @admin.register(Channel)
@@ -53,13 +52,10 @@ class ProgramModelAdmin(admin.ModelAdmin):
     list_display_links = ['channel']
     list_filter = ['finished', 'channel']
     search_fields = ['title']
-    actions = ['record', 'test_record']
+    actions = ['record', 'get_category_id']
 
     def get_queryset(self, request):
         return super(ProgramModelAdmin, self).get_queryset(request).filter(finished=1)
-
-    def test_record(self, request, queryset):
-        get_program()
 
     def record(self, request, queryset):
         legal_program_cnt = 0
