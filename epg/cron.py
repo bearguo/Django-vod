@@ -13,7 +13,6 @@ from vodmanagement.models import VideoCategory, Vod
 
 
 def get_program():
-    os.system("echo $(date) >> auto_record.log")
     cf = configparser.ConfigParser()
     config_file = Path(settings.BASE_DIR) / 'conf' / 'auto_record.conf'
     cf.read(str(config_file), encoding="utf-8")
@@ -97,7 +96,4 @@ def get_category_id():
                 )
                 new_category.save()
             cursor.execute(sql)
-            return cursor.fetchone()
-
-if __name__ == "__main__":
-    print(get_category_id())
+            return int(cursor.fetchone()[0])
