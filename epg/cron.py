@@ -1,4 +1,5 @@
 import configparser
+import datetime
 import os
 import threading
 from pathlib import Path
@@ -30,6 +31,7 @@ def get_program():
 
 @retry(tries=30, delay=5*60)
 def auto_record(title, channel_id):
+    print(datetime.datetime.now())
     try:
         db = pymysql.connect(
             host = os.getenv('TSRTMP_DB_HOST', os.getenv('DJANGO_DB_HOST', '')),
@@ -58,6 +60,7 @@ def auto_record(title, channel_id):
                     url.append(obj[0])
                     program_title.append(obj[1])
         if len(url) == 0:
+            print("retrying")
             raise Exception("No match program")
                     
         for i in range(0,len(url)):
