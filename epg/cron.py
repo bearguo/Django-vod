@@ -4,7 +4,7 @@ import os
 import threading
 from pathlib import Path
 from urllib import parse
-
+import time
 import pymysql
 from retry import retry
 
@@ -66,7 +66,7 @@ def auto_record(title, channel_id):
         for i in range(0,len(url)):
             m3u8_file_path = parse.urlparse(url[i]).path  # /CCTV1/20180124/123456.m3u8
             new_record = Vod(
-                    title = program_title[i],
+                    title = time.strftime("%Y-%m-%d",time.localtime()) + program_title[i],
                     video = settings.RECORD_MEDIA_FOLDER + m3u8_file_path,
                     category_id = get_category_id()
                     )
