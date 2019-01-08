@@ -7,6 +7,7 @@ from urllib import parse
 import time
 import pymysql
 from retry import retry
+from mysite.settings import STATIC_URL
 
 import mysite.settings as settings
 from epg.utils import download_m3u8_files
@@ -68,7 +69,8 @@ def auto_record(title, channel_id):
             new_record = Vod(
                     title = time.strftime("%Y-%m-%d",time.localtime()) + program_title[i],
                     video = settings.RECORD_MEDIA_FOLDER + m3u8_file_path,
-                    category_id = get_category_id()
+                    category_id = get_category_id(),
+                    image = STATIC_URL + 'xinwenlianbo.jpg',
                     )
             new_record.save()
             p = threading.Thread(target=download_m3u8_files, args=(new_record.id, url[i], settings.RECORD_MEDIA_ROOT,))
