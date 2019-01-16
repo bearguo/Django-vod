@@ -76,7 +76,8 @@ def auto_record(title, channel_id):
                     )
             new_record.save()
             source = settings.STATIC_ROOT +'/xinwenlianbo.jpg'
-            target = str(Path(settings.RECORD_MEDIA_ROOT + m3u8_file_path).parents[0]) + '/xinwenlianbo.jpg'
+            Path(settings.RECORD_MEDIA_ROOT + m3u8_file_path).parent.mkdir(parents=True, exist_ok=True)
+            target = str(Path(settings.RECORD_MEDIA_ROOT + m3u8_file_path).parent) + '/xinwenlianbo.jpg'
             os.system('cp -f %s %s'%(source,target))
             p = threading.Thread(target=download_m3u8_files, args=(new_record.id, url[i], settings.RECORD_MEDIA_ROOT,))
             p.start()
