@@ -1,25 +1,20 @@
 import datetime
 import threading
 from pathlib import Path
-from django.contrib import admin
-from django.contrib.admin import SimpleListFilter
-from django.core.management import call_command
-from django.core import serializers as django_serializers
-from django.http import HttpResponse
-from django.contrib import messages
-from uuslug import uuslug
-from transcode import ff
-import m3u8
 
-from vodmanagement.forms import RestoreForm, CategoryAdminForm, VodForm, MultipleUploadForm
-from vodmanagement.models import (
-    Vod,
-    VideoCategory,
-    MultipleUpload,
-    Restore,
-    FileDirectory,
-    VideoRegion
-)
+import m3u8
+from django.contrib import admin, messages
+from django.contrib.admin import SimpleListFilter
+from django.core import serializers as django_serializers
+from django.core.management import call_command
+from django.http import HttpResponse
+from uuslug import uuslug
+
+from transcode import ff
+from vodmanagement.forms import (CategoryAdminForm, MultipleUploadForm,
+                                 RestoreForm, VodForm)
+from vodmanagement.models import (FileDirectory, MultipleUpload, Restore,
+                                  VideoCategory, VideoRegion, Vod)
 from vodmanagement.utils import *
 
 
@@ -76,23 +71,7 @@ class VodModelAdmin(admin.ModelAdmin):
     
     def delete_hard(self, request, queryset):
         for obj in queryset:
-            try:
-                delete_hard(obj.image.path)
-            except:
-                pass
-            try:
-                if os.path.splitext(str(obj.video))[1] == '.m3u8':
-                    obj_ts=(m3u8.load(str(obj.video.path))).files
-                    for ts_file in obj_ts:
-                        try:
-                            ts_path = Path(os.path.dirname(obj.video.path)) / Path(ts_file)
-                            os.remove(str(ts_path))
-                        except:
-                            pass
-                delete_hard(obj.video.path)   
-            except:
-                pass
-            obj.delete()
+            delete_vod(obj)
 
     delete_hard.short_description = '删除硬盘上的文件'
 

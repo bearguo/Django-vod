@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import time
+import m3u8
 from pathlib import Path
 
 import humanfriendly
@@ -100,6 +101,25 @@ def delete_hard(file_path):
             if re.match(re.escape(basename) + '*', file):
                 print("matched file:", file)
                 os.remove(os.path.join(dir, file))
+
+def delete_vod(obj):
+    try:
+        delete_hard(obj.image.path)
+    except:
+        pass
+    try:
+        if os.path.splitext(str(obj.video))[1] == '.m3u8':
+            obj_ts=(m3u8.load(str(obj.video.path))).files
+            for ts_file in obj_ts:
+                try:
+                    ts_path = Path(os.path.dirname(obj.video.path)) / Path(ts_file)
+                    os.remove(str(ts_path))
+                except:
+                    pass
+        delete_hard(obj.video.path)   
+    except:
+        pass
+    obj.delete()
 
 
 def func_time(func):

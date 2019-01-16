@@ -2,15 +2,17 @@ import configparser
 import datetime
 import os
 import threading
+import time
 from pathlib import Path
 from urllib import parse
-import time
+
 import pymysql
 from retry import retry
 
 import mysite.settings as settings
 from epg.utils import download_m3u8_files
 from vodmanagement.models import VideoCategory, Vod
+from vodmanagement.utils import delete_vod
 
 
 def get_program():
@@ -75,7 +77,7 @@ def auto_record(title, channel_id):
             new_record.save()
             source = settings.STATIC_ROOT +'/xinwenlianbo.jpg'
             target = str(Path(settings.RECORD_MEDIA_ROOT + m3u8_file_path).parents[0]) + '/xinwenlianbo.jpg'
-            os.system('cp %s %s'%(source,target))
+            os.system('cp -f %s %s'%(source,target))
             p = threading.Thread(target=download_m3u8_files, args=(new_record.id, url[i], settings.RECORD_MEDIA_ROOT,))
             p.start()
             #download_m3u8_files(new_record.id, url[i], settings.RECORD_MEDIA_ROOT)
@@ -105,3 +107,28 @@ def get_category_id():
                 new_category.save()
             cursor.execute(sql)
             return int(cursor.fetchone()[0])
+
+def auto_del():
+    id = get_category_id()
+    try:
+        db = pymysql.connect(
+            host = os.getenv('DJANGO_DB_HOST', ''),
+            user = 'root',
+            password = '123',
+            charset = 'utf8mb4',
+            db = 'vod'
+        )
+    except Exception():
+        print('No Route To Host')
+    else:
+        with db.cursor() as cursor:
+            sql = 'SELECT id FROM vodmanagement_vod \
+                    WHERE category_id = %d  \
+                    AND TO_DAYS(NOW())-TO_DAYS(timestamp)>7' \
+                    % id
+            cursor.execute(sql)
+            for obj in cursor.fetchall():
+                video_id = obj[0]
+                instance = Vod.objects.get(id=video_id)
+                delete_vod(instance)
+        print('successfully deleted auto_record video')
