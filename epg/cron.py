@@ -7,6 +7,7 @@ from pathlib import Path
 from urllib import parse
 
 import pymysql
+from DBUtils.PooledDB import PooledDB
 from retry import retry
 
 import mysite.settings as settings
@@ -14,6 +15,25 @@ from epg.utils import download_m3u8_files
 from vodmanagement.models import VideoCategory, Vod
 from vodmanagement.utils import delete_vod
 
+pool_tsrtmp = PooledDB(
+        pymysql,
+        5,
+        host = os.getenv('TSRTMP_DB_HOST', os.getenv('DJANGO_DB_HOST', '')),
+        user = 'root',
+        password = '123',
+        charset = 'utf8mb4',
+        db = 'tsrtmp'
+    )
+
+pool_vod = PooledDB(
+        pymysql,
+        5,
+        host = os.getenv('DJANGO_DB_HOST', ''),
+        user = 'root',
+        password = '123',
+        charset = 'utf8mb4',
+        db = 'vod'
+    )
 
 def get_program():
     cf = configparser.ConfigParser()
@@ -22,13 +42,11 @@ def get_program():
     title = []
     channel_id = []
     if len(cf.sections()) == 0:
-        return
+        return title, channel_id
     else:
         for obj in cf.sections():
             title.append(cf.get(obj, 'title'))
             channel_id.append(cf.get(obj,'channel_id'))
-    #p = threading.Thread(target=auto_record, args=(title, channel_id))
-    #p.start()
     return title, channel_id
 
 @retry(tries=10, delay=5*60)
@@ -77,14 +95,8 @@ def record_video(url, program_title):
             print(e)
             raise e
 
-def auto_record():
-    db = pymysql.connect(
-            host = os.getenv('TSRTMP_DB_HOST', os.getenv('DJANGO_DB_HOST', '')),
-            user = 'root',
-            password = '123',
-            charset = 'utf8mb4',
-            db = 'tsrtmp'
-        )
+def auto_record(): 
+    db = pool_tsrtmp.connection()
     title, channel_id = get_program()
     url, program_title = get_record_info(title, channel_id, db)
     record_video(url, program_title)
@@ -92,17 +104,11 @@ def auto_record():
 
 def get_category_id():
     try:
-        db2 = pymysql.connect(
-            host = os.getenv('DJANGO_DB_HOST', ''),
-            user = 'root',
-            password = '123',
-            charset = 'utf8mb4',
-            db = 'vod'
-        )
+        db = pool_vod.connection()
     except Exception():
         print('No Route To Host')
     else:
-        with db2.cursor() as cursor:
+        with db.cursor() as cursor:
             sql = 'SELECT id FROM vodmanagement_videocategory \
                     WHERE name = "自动录制" '
             cursor.execute(sql)
@@ -113,17 +119,13 @@ def get_category_id():
                 new_category.save()
             cursor.execute(sql)
             return int(cursor.fetchone()[0])
+    finally:
+        db.close()
 
 def auto_del():
     id = get_category_id()
     try:
-        db = pymysql.connect(
-            host = os.getenv('DJANGO_DB_HOST', ''),
-            user = 'root',
-            password = '123',
-            charset = 'utf8mb4',
-            db = 'vod'
-        )
+        db = pool_vod.connection()
     except Exception():
         print('No Route To Host')
     else:
@@ -138,3 +140,5 @@ def auto_del():
                 instance = Vod.objects.get(id=video_id)
                 delete_vod(instance)
         print('successfully deleted auto_record video')
+    finally:
+        db.close()
