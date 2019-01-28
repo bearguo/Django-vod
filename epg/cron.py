@@ -32,19 +32,8 @@ def get_program():
     return title, channel_id
 
 @retry(tries=10, delay=5*60)
-def get_record_info(title, channel_id):
+def get_record_info(title, channel_id, db):
     print(datetime.datetime.now())
-    try:
-        db = pymysql.connect(
-            host = os.getenv('TSRTMP_DB_HOST', os.getenv('DJANGO_DB_HOST', '')),
-            user = 'root',
-            password = '123',
-            charset = 'utf8mb4',
-            db = 'tsrtmp'
-        )
-    except Exception() as e:
-        print("No route to host")
-        raise e
     url = []
     program_title = []
     for i in range(0,len(title)):
@@ -57,11 +46,9 @@ def get_record_info(title, channel_id):
             AND TO_DAYS(NOW())=TO_DAYS(start_time)' \
             % (title[i], channel_id[i])
             cursor.execute(sql)
-
             for obj in cursor.fetchall():
                 url.append(obj[0])
                 program_title.append(obj[1])
-    db.close()
     if len(url) == 0:
         print("No match program")
         raise Exception("No match program")
@@ -91,9 +78,17 @@ def record_video(url, program_title):
             raise e
 
 def auto_record():
+    db = pymysql.connect(
+            host = os.getenv('TSRTMP_DB_HOST', os.getenv('DJANGO_DB_HOST', '')),
+            user = 'root',
+            password = '123',
+            charset = 'utf8mb4',
+            db = 'tsrtmp'
+        )
     title, channel_id = get_program()
-    url, program_title = get_record_info(title, channel_id)
+    url, program_title = get_record_info(title, channel_id, db)
     record_video(url, program_title)
+    db.close()
 
 def get_category_id():
     try:
