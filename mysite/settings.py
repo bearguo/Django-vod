@@ -163,7 +163,7 @@ REST_FRAMEWORK = {
 }
 
 CRONJOBS = [
-    ('25 19 * * *', 'epg.cron.get_program', '>> cron.log'),
+    ('25 19 * * *', 'epg.cron.auto_record', '>> cron.log'),
     ('0 3 * * *', 'epg.cron.auto_del', '>> cron.log'),
 ]
 
