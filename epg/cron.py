@@ -49,7 +49,7 @@ def get_program():
             channel_id.append(cf.get(obj,'channel_id'))
     return title, channel_id
 
-@retry(tries=10, delay=5*60)
+@retry(tries=30, delay=5*60)
 def get_record_info(title, channel_id, db):
     print(datetime.datetime.now())
     url = []
