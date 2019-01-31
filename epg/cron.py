@@ -54,19 +54,23 @@ def get_record_info(title, channel_id, db):
     print(datetime.datetime.now())
     url = []
     program_title = []
-    for i in range(0,len(title)):
-        with db.cursor() as cursor:
-            sql = '\
-            SELECT url,title FROM program \
-            WHERE title LIKE %s \
-            AND channel_id = %s \
-            AND finished = 1 \
-            AND TO_DAYS(NOW())=TO_DAYS(start_time)' \
-            % (title[i], channel_id[i])
-            cursor.execute(sql)
-            for obj in cursor.fetchall():
-                url.append(obj[0])
-                program_title.append(obj[1])
+    try:
+        for i in range(0,len(title)):
+            with db.cursor() as cursor:
+                sql = '\
+                SELECT url,title FROM program \
+                WHERE title LIKE %s \
+                AND channel_id = %s \
+                AND finished = 1 \
+                AND TO_DAYS(NOW())=TO_DAYS(start_time)' \
+                % (title[i], channel_id[i])
+                cursor.execute(sql)
+                for obj in cursor.fetchall():
+                    url.append(obj[0])
+                    program_title.append(obj[1])
+    except Exception as e:
+        print(e)
+        raise e
     if len(url) == 0:
         print("No match program")
         raise Exception("No match program")
