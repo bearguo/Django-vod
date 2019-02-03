@@ -50,8 +50,9 @@ def get_program():
     return title, channel_id
 
 @retry(tries=30, delay=5*60)
-def get_record_info(title, channel_id, db):
+def get_record_info(title, channel_id):
     print(datetime.datetime.now())
+    db = pool_tsrtmp.connection()
     url = []
     program_title = []
     try:
@@ -71,9 +72,11 @@ def get_record_info(title, channel_id, db):
     except Exception as e:
         print(e)
         raise e
+    finally:
+        db.close()
     if len(url) == 0:
-        print("No match program")
-        raise Exception("No match program")
+        print("No matched program")
+        raise Exception("No matched program")
     return url, program_title
 
 
@@ -100,11 +103,9 @@ def record_video(url, program_title):
             raise e
 
 def auto_record(): 
-    db = pool_tsrtmp.connection()
     title, channel_id = get_program()
-    url, program_title = get_record_info(title, channel_id, db)
+    url, program_title = get_record_info(title, channel_id)
     record_video(url, program_title)
-    db.close()
 
 def get_category_id():
     try:
