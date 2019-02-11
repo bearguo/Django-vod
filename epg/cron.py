@@ -6,34 +6,14 @@ import time
 from pathlib import Path
 from urllib import parse
 
-import pymysql
-from DBUtils.PooledDB import PooledDB
 from retry import retry
 
 import mysite.settings as settings
+from epg.models import Program
 from epg.utils import download_m3u8_files
 from vodmanagement.models import VideoCategory, Vod
 from vodmanagement.utils import delete_vod
 
-pool_tsrtmp = PooledDB(
-        pymysql,
-        5,
-        host = os.getenv('TSRTMP_DB_HOST', os.getenv('DJANGO_DB_HOST', '')),
-        user = 'root',
-        password = '123',
-        charset = 'utf8mb4',
-        db = 'tsrtmp'
-    )
-
-pool_vod = PooledDB(
-        pymysql,
-        5,
-        host = os.getenv('DJANGO_DB_HOST', ''),
-        user = 'root',
-        password = '123',
-        charset = 'utf8mb4',
-        db = 'vod'
-    )
 
 def get_program():
     cf = configparser.ConfigParser()
@@ -51,34 +31,21 @@ def get_program():
 
 @retry(tries=30, delay=5*60)
 def get_record_info(title, channel_id):
-    print(datetime.datetime.now())
-    db = pool_tsrtmp.connection()
     url = []
     program_title = []
     try:
         for i in range(0,len(title)):
-            with db.cursor() as cursor:
-                sql = '\
-                SELECT url,title FROM program \
-                WHERE title LIKE %s \
-                AND channel_id = %s \
-                AND finished = 1 \
-                AND TO_DAYS(NOW())=TO_DAYS(start_time)' \
-                % (title[i], channel_id[i])
-                cursor.execute(sql)
-                for obj in cursor.fetchall():
-                    url.append(obj[0])
-                    program_title.append(obj[1])
+            obj = Program.objects.filter(title=title[i], finished='1',channel_id=channel_id[i],start_time__startswith=datetime.date.today())
+            for i in obj:
+                url.append(i.url) 
+                program_title.append(i.title)
     except Exception as e:
         print(e)
         raise e
-    finally:
-        db.close()
-    if len(url) == 0:
-        print("No matched program")
-        raise Exception("No matched program")
+    if len(url) ==0:
+        print('No matched program')
+        raise Exception('No matched program')
     return url, program_title
-
 
 def record_video(url, program_title):               
     for i in range(0,len(url)):
@@ -109,41 +76,17 @@ def auto_record():
 
 def get_category_id():
     try:
-        db = pool_vod.connection()
-    except Exception():
-        print('No Route To Host')
-    else:
-        with db.cursor() as cursor:
-            sql = 'SELECT id FROM vodmanagement_videocategory \
-                    WHERE name = "自动录制" '
-            cursor.execute(sql)
-            if not cursor.fetchone():
-                new_category = VideoCategory(
-                   name = '自动录制',
-                )
-                new_category.save()
-            cursor.execute(sql)
-            return int(cursor.fetchone()[0])
-    finally:
-        db.close()
+        obj = VideoCategory.objects.get(name='自动录制')
+    except Exception:
+        new_category = VideoCategory(name = '自动录制',)
+        new_category.save()
+        return int(new_category.id)
+    return int(obj.id)
 
 def auto_del():
-    id = get_category_id()
-    try:
-        db = pool_vod.connection()
-    except Exception():
-        print('No Route To Host')
-    else:
-        with db.cursor() as cursor:
-            sql = 'SELECT id FROM vodmanagement_vod \
-                    WHERE category_id = %d  \
-                    AND TO_DAYS(NOW())-TO_DAYS(timestamp)>7' \
-                    % id
-            cursor.execute(sql)
-            for obj in cursor.fetchall():
-                video_id = obj[0]
-                instance = Vod.objects.get(id=video_id)
-                delete_vod(instance)
-        print('successfully deleted auto_record video')
-    finally:
-        db.close()
+    auto_record_id = get_category_id()
+    now = datetime.datetime.now()
+    delta = datetime.timedelta(days=7)
+    obj = Vod.objects.filter(category_id=auto_record_id, timestamp__lt=(now - delta))
+    for i in obj:
+        i.delete()
