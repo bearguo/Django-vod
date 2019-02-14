@@ -45,13 +45,16 @@ def get_record_info(title, channel_id):
     if len(url) ==0:
         print('No matched program')
         raise Exception('No matched program')
-    return url, program_title
+    else:
+        print(url, program_title)
+        return url, program_title
 
 def record_video(url, program_title):               
     for i in range(0,len(url)):
         try:
             m3u8_file_path = parse.urlparse(url[i]).path  # /CCTV1/20180124/123456.m3u8
             video_path = settings.RECORD_MEDIA_FOLDER + m3u8_file_path
+            print(video_path)
             new_record = Vod(
                     title = time.strftime("%Y-%m-%d",time.localtime()) + program_title[i],
                     video = video_path,
@@ -59,6 +62,7 @@ def record_video(url, program_title):
                     image =  str(Path(video_path).parents[0] / 'xinwenlianbo.jpg'),
                     )
             new_record.save()
+            print(str(new_record.title))
             #p = threading.Thread(target=download_m3u8_files, args=(new_record.id, url[i], settings.RECORD_MEDIA_ROOT,))
             #p.start()
             download_m3u8_files(new_record.id, url[i], settings.RECORD_MEDIA_ROOT)
