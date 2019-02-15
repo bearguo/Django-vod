@@ -2,7 +2,6 @@ import configparser
 import datetime
 import os
 import threading
-import time
 from pathlib import Path
 from urllib import parse
 
@@ -46,7 +45,6 @@ def get_record_info(title, channel_id):
         print('No matched program')
         raise Exception('No matched program')
     else:
-        print(url, program_title)
         return url, program_title
 
 def record_video(url, program_title):               
@@ -54,11 +52,12 @@ def record_video(url, program_title):
         try:
             m3u8_file_path = parse.urlparse(url[i]).path  # /CCTV1/20180124/123456.m3u8
             video_path = settings.RECORD_MEDIA_FOLDER + m3u8_file_path
+            category_id = get_category_id()
             print(video_path)
             new_record = Vod(
-                    title = time.strftime("%Y-%m-%d",time.localtime()) + program_title[i],
+                    title = str(datetime.date.today()) + program_title[i],
                     video = video_path,
-                    category_id = get_category_id(),
+                    category_id = category_id,
                     image =  str(Path(video_path).parents[0] / 'xinwenlianbo.jpg'),
                     )
             new_record.save()
@@ -73,11 +72,6 @@ def record_video(url, program_title):
             print(e)
             raise e
 
-def auto_record(): 
-    title, channel_id = get_program()
-    url, program_title = get_record_info(title, channel_id)
-    record_video(url, program_title)
-
 def get_category_id():
     try:
         obj = VideoCategory.objects.get(name='自动录制')
@@ -86,6 +80,11 @@ def get_category_id():
         new_category.save()
         return int(new_category.id)
     return int(obj.id)
+
+def auto_record(): 
+    title, channel_id = get_program()
+    url, program_title = get_record_info(title, channel_id)
+    record_video(url, program_title)
 
 def auto_del():
     auto_record_id = get_category_id()
