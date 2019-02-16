@@ -1,5 +1,5 @@
 env*/*
-media/**
+media
 static/**
 .idea/*
 *.tar.gz
@@ -24,3 +24,5 @@ logs
 !__init__.py
 !vodmanagement/static/*
 test.py
+__pycache__
+LOG_DIR

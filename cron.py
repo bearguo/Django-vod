@@ -32,19 +32,20 @@ def get_program():
 def get_record_info(title, channel_id):
     url = []
     program_title = []
-    try:
-        for i in range(0,len(title)):
-            obj = Program.objects.filter(title=title[i], finished='1',channel_id=channel_id[i],start_time__startswith=datetime.date.today())
-            for i in obj:
-                url.append(i.url) 
-                program_title.append(i.title)
-    except Exception as e:
-        print(e)
-        raise e
-    if len(url) ==0:
+    for i in range(0,len(title)):
+        obj = Program.objects.filter(
+            title=title[i],
+            finished='1',
+            channel_id=channel_id[i],
+            start_time__startswith=datetime.date.today()
+        )
+    if len(obj) == 0:
         print('No matched program')
         raise Exception('No matched program')
     else:
+        for i in obj:
+            url.append(i.url) 
+            program_title.append(i.title)
         return url, program_title
 
 def record_video(url, program_title):               
@@ -67,6 +68,7 @@ def record_video(url, program_title):
             download_m3u8_files(new_record.id, url[i], settings.RECORD_MEDIA_ROOT)
             source = settings.STATIC_ROOT +'/xinwenlianbo.jpg'
             target = str(Path(settings.RECORD_MEDIA_ROOT + m3u8_file_path).parent) + '/xinwenlianbo.jpg'
+            Path(target).parent.mkdir(exist_ok=True, parents=True)
             os.system('cp -f %s %s'%(source,target))
         except Exception as e:
             print(e)
