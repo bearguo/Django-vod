@@ -55,6 +55,8 @@ def record_video(url, program_title):
         try:
             m3u8_file_path = parse.urlparse(url[i]).path  # /CCTV1/20180124/123456.m3u8
             video_path = settings.RECORD_MEDIA_FOLDER + m3u8_file_path
+            if not os.path.exists(category_id_file):
+                get_category_id()
             with open(category_id_file,'r', encoding='utf-8') as f:
                 category_id = f.read()
             new_record = Vod(
@@ -91,6 +93,8 @@ def auto_record():
     record_video(url, program_title)
 
 def auto_del():
+    if not os.path.exists(category_id_file):
+        get_category_id()
     with open(category_id_file,'r', encoding='utf-8') as f:
         auto_record_id = f.read
     now = datetime.datetime.now()
