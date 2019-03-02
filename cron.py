@@ -82,9 +82,9 @@ def get_category_id():
         except Exception:
             new_category = VideoCategory(name = '自动录制',)
             new_category.save()
-            f.write(new_category.id)
+            f.write(str(new_category.id))
         else:
-            f.write(obj.id)
+            f.write(str(obj.id))
     
 
 def auto_record(): 
