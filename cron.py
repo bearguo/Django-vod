@@ -41,14 +41,14 @@ def get_record_info(title, channel_id):
             channel_id=channel_id[i],
             start_time__startswith=datetime.date.today()
         )
-    if len(obj) == 0:
-        print('No matched program')
-        raise Exception('No matched program')
-    else:
-        for i in obj:
-            url.append(i.url) 
-            program_title.append(i.title)
-        return url, program_title
+        if len(obj) == 0:
+            print('No matched program')
+            raise Exception('No matched program')
+        else:
+            for i in obj:
+                url.append(i.url) 
+                program_title.append(i.title)
+    return url, program_title
 
 def record_video(url, program_title):               
     for i in range(0,len(url)):
