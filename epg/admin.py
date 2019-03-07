@@ -11,6 +11,7 @@ from epg.models import Channel, Program
 from epg.utils import download_m3u8_files
 from mysite import settings
 from vodmanagement.models import Vod
+from logutil import update_logger
 
 
 @admin.register(Channel)
@@ -65,6 +66,7 @@ class ProgramModelAdmin(admin.ModelAdmin):
             #    mp4_file_path = Path(m3u8_file_path).parent / Path(program.title).with_suffix('.mp4') # /CCTV1/20180124/<title>.mp4
                 urlopen(program.url, timeout=5)
             except Exception as e:
+                update_logger.error(e)
                 self.message_user(request, '%s 转点播失败 请检查录播的网址是否可以访问'%(program.title), messages.ERROR)
                 continue
             new_record = Vod(
@@ -76,7 +78,6 @@ class ProgramModelAdmin(admin.ModelAdmin):
             p.start()
             legal_program_cnt += 1
         record_url = reverse('admin:vodmanagement_vod_changelist')
-        print(record_url)
         self.message_user(request, mark_safe('%s/%s 个节目正在转成点播,转换进度请到<a href="%s">录制节目</a>处查看。'%(legal_program_cnt,queryset.count(),record_url))
                           , messages.SUCCESS)
 

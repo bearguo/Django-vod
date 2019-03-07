@@ -8,6 +8,7 @@ from pathlib import Path
 import humanfriendly
 import platform
 from django.conf import settings
+from logutil import update_logger
 
 
 # generate choices depending on the folders in '/media/xjtu'
@@ -46,7 +47,8 @@ def get_media_folder():
     try:
         folders = [str(item) for item in Path(settings.SYSTEM_MEDIA_ROOT).iterdir() if item.is_dir()]
     except Exception as e:
-        logging.error("无法列出 SYSTEM_MEDIA_ROOT:%s 目录下的所有文件夹,请检查该目录是否存在" % settings.SYSTEM_MEDIA_ROOT)
+        update_logger.error("无法列出 SYSTEM_MEDIA_ROOT:%s 目录下的所有文件夹,请检查该目录是否存在" % settings.SYSTEM_MEDIA_ROOT)
+        update_logger.error(e)
     return folders
 
 
@@ -105,8 +107,8 @@ def delete_hard(file_path):
 def delete_vod(obj):
     try:
         delete_hard(obj.image.path)
-    except:
-        pass
+    except Exception as e:
+        update_logger.error(e)
     try:
         if os.path.splitext(str(obj.video))[1] == '.m3u8':
             obj_ts=(m3u8.load(str(obj.video.path))).files
@@ -114,11 +116,12 @@ def delete_vod(obj):
                 try:
                     ts_path = Path(os.path.dirname(obj.video.path)) / Path(ts_file)
                     os.remove(str(ts_path))
-                except:
-                    pass
+                except Exception as e:
+                    update_logger.error(e)
         delete_hard(obj.video.path)   
-    except:
-        pass
+    except Exception as e:
+        update_logger.error(e)
+    update_logger.info('delete vod object ' + str(obj.title))
     obj.delete()
 
 
@@ -139,7 +142,8 @@ def try_or_error(func):
         try:
             ret = func(*args, **kwargs)
         except Exception as e:
-            logging.debug('%sField is not available'%func)
+            update_logger.error('%sField is not available'%func)
+            update_logger.error(e)
         return ret
 
     return result

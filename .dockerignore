@@ -3,7 +3,7 @@ media/**
 static/**
 .idea/*
 *.tar.gz
-*/__pycache__/*
+__pycache__
 *.pyc
 db.sqlite3
 */migrations/*.py
@@ -23,3 +23,7 @@ logs
 !__init__.py
 !vodmanagement/static/*
 test.py
+LICENSE
+README.md
+nginx_env
+test.sh

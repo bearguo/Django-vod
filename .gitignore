@@ -26,3 +26,4 @@ logs
 test.py
 __pycache__
 LOG_DIR
+test.sh

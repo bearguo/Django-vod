@@ -1,11 +1,15 @@
 from pathlib import Path
-from urllib.request import urlretrieve, pathname2url
-from urllib.parse import urlparse,urljoin
-from vodmanagement.models import Vod
-import ffmpy
-import m3u8
-import logging
 from time import sleep
+from urllib.parse import urljoin, urlparse
+from urllib.request import pathname2url, urlretrieve
+
+import m3u8
+
+import ffmpy
+from logutil import update_logger
+from vodmanagement.models import Vod
+
+
 '''
 def download_mp4_files(id,url_str,dest_dir,title):
     obj = Vod.objects.get(id=id) 
@@ -43,9 +47,10 @@ def download_m3u8_files(id, url_str, dest_dir):
                     instance.save()
             instance.active = 1
             instance.save()
+            update_logger.info('record ' + str(instance.title) + ' success')
     except Exception as e:
-        logging.error('Download m3u8(%s) files failed' % (url_str,))
-        logging.exception(e)
+        update_logger.error('Download m3u8(%s) files failed' % (url_str,))
+        update_logger.error(e)
 
 
 def download_ts_file(url, dest_path):
@@ -56,8 +61,8 @@ def download_ts_file(url, dest_path):
             return url
         except Exception as e:
             msg = url + ' download failed! '
-            logging.error(msg)
-            logging.exception(e)
+            update_logger.error(msg)
+            update_logger.error(e)
             sleep(1)
             retry -= 1
     return None

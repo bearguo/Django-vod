@@ -5,14 +5,14 @@ import threading
 from pathlib import Path
 from urllib import parse
 
-from django.db import close_old_connections
 from retry import retry
-
+from django.db import close_old_connections
 import mysite.settings as settings
 from epg.models import Program
 from epg.utils import download_m3u8_files
 from vodmanagement.models import VideoCategory, Vod
 from vodmanagement.utils import delete_vod
+from logutil import update_logger
 
 category_id_file = config_file = Path(settings.BASE_DIR) / 'conf' / 'category_id.txt'
 
@@ -29,6 +29,7 @@ def get_program():
         for obj in cf.sections():
             title.append(cf.get(obj, 'title'))
             channel_id.append(cf.get(obj,'channel_id'))
+    update_logger.info('get auto record program success')
     return title, channel_id
 
 @retry(tries=30, delay=5*60)
@@ -44,12 +45,12 @@ def get_record_info(title, channel_id):
             start_time__startswith=datetime.date.today()
         )
         if len(obj) == 0:
-            print('No matched program')
             raise Exception('No matched program')
         else:
             for i in obj:
                 url.append(i.url) 
                 program_title.append(i.title)
+    update_logger.info('get porgrams url success')
     return url, program_title
 
 def record_video(url, program_title):               
@@ -75,7 +76,7 @@ def record_video(url, program_title):
             Path(target).parent.mkdir(exist_ok=True, parents=True)
             os.system('cp -f %s %s'%(source,target))
         except Exception as e:
-            print(e)
+            update_logger.error(e)
             raise e
 
 def get_category_id():
@@ -98,13 +99,18 @@ def auto_record():
     record_video(url, program_title)
 
 def auto_del():
-    if not os.path.exists(category_id_file):
-        get_category_id()
-    with open(category_id_file,'r', encoding='utf-8') as f:
-        auto_record_id = f.read
-    now = datetime.datetime.now()
-    delta = datetime.timedelta(days=7)
-    close_old_connections()
-    obj = Vod.objects.filter(category_id=auto_record_id, timestamp__lt=(now - delta))
-    for i in obj:
-        i.delete()
+    try:
+        if not os.path.exists(category_id_file):
+            get_category_id()
+        with open(category_id_file,'r', encoding='utf-8') as f:
+            auto_record_id = f.read
+        now = datetime.datetime.now()
+        delta = datetime.timedelta(days=7)
+        close_old_connections()
+        obj = Vod.objects.filter(category_id=auto_record_id, timestamp__lt=(now - delta))
+        for i in obj:
+            i.delete()
+    except Exception as e:
+        update_logger.error(e)
+        raise e
+    update_logger.info('auto delete vod program success ')

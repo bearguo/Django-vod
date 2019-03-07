@@ -16,6 +16,7 @@ from vodmanagement.forms import (CategoryAdminForm, MultipleUploadForm,
 from vodmanagement.models import (FileDirectory, MultipleUpload, Restore,
                                   VideoCategory, VideoRegion, Vod)
 from vodmanagement.utils import *
+from logutil import update_logger
 
 
 class VideoFormatFilter(SimpleListFilter):

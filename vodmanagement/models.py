@@ -19,6 +19,7 @@ from django.core.urlresolvers import reverse
 from django.core.files import File
 from sortedm2m.fields import SortedManyToManyField
 from uuslug import uuslug
+from logutil import update_logger
 # from moviepy.editor import VideoFileClip # get video duration
 from .my_storage import VodStorage
 from admin_resumable.fields import (
@@ -272,7 +273,7 @@ class Vod(models.Model):
         full_pinyin = p.get_pinyin(smart_str(self.title), '')
         first_pinyin = p.get_initials(smart_str(self.title), '').lower()
         self.search_word = " ".join([full_pinyin, first_pinyin])
-        logging.debug("video path:", self.video)
+        update_logger.info('video path: ' + str(self.video))
 
         if self.description is None or self.description == "":
             self.description = default_description(self)
@@ -280,7 +281,7 @@ class Vod(models.Model):
         if self.local_video != '' and self.local_video is not None:
             basename = Path(self.local_video).relative_to(Path(settings.LOCAL_MEDIA_ROOT))
             self.video.name = str(Path(settings.LOCAL_MEDIA_URL) / basename)
-            logging.debug("save local_video to filefield done")
+            update_logger.debug("save local_video to filefield done")
 
         if without_valid:
             ret = super(Vod, self).save(*args, **kwargs)
@@ -300,9 +301,9 @@ class Vod(models.Model):
                 if not self.video.name.startswith(settings.LOCAL_FOLDER_NAME) and \
                         not self.video.name.startswith(settings.RECORD_MEDIA_FOLDER):
                     self.video.name = str(rel_name)
-                logging.debug('save_path:', self.save_path)
-                logging.debug('video.name:', self.video.name)
-                logging.debug('size:', self.video.file.size)
+                update_logger.info('save path: ' + self.save_path)
+                update_logger.info('video name: ' + str(self.video.name))
+                update_logger.info('size: ' + self.video.file.size)
                 self.file_size = humanfriendly.format_size(self.video.file.size)
                 # duration = VideoFileClip(self.video.path).duration
                 # self.duration = time_formate(duration)
