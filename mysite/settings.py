@@ -120,7 +120,8 @@ DATABASES = {
         'USER' : 'root',
         'PASSWORD': '123',
         'HOST': os.getenv('DJANGO_DB_HOST', ''),
-        'PORT': '',#'3306',
+        'PORT': '',#'3306'
+        'CONN_MAX_AGE': 30,
     },
     'tsrtmp': {
         'ENGINE': 'django.db.backends.mysql',
@@ -129,6 +130,7 @@ DATABASES = {
         'PASSWORD': '123',
         'HOST': os.getenv('TSRTMP_DB_HOST', os.getenv('DJANGO_DB_HOST', '')),
         'PORT': '',
+        'CONN_MAX_AGE': 30,
     }
 }
 

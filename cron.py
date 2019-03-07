@@ -5,6 +5,7 @@ import threading
 from pathlib import Path
 from urllib import parse
 
+from django.db import close_old_connections
 from retry import retry
 
 import mysite.settings as settings
@@ -35,6 +36,7 @@ def get_record_info(title, channel_id):
     url = []
     program_title = []
     for i in range(0,len(title)):
+        close_old_connections()
         obj = Program.objects.filter(
             title=title[i],
             finished='1',
@@ -59,6 +61,7 @@ def record_video(url, program_title):
                 get_category_id()
             with open(category_id_file,'r', encoding='utf-8') as f:
                 category_id = f.read()
+            close_old_connections()
             new_record = Vod(
                     title = str(datetime.date.today()) + program_title[i],
                     video = video_path,
@@ -78,8 +81,10 @@ def record_video(url, program_title):
 def get_category_id():
     with open(category_id_file,'w', encoding='utf-8') as f:
         try:
+            close_old_connections()
             obj = VideoCategory.objects.get(name='自动录制')
         except Exception:
+            close_old_connections()
             new_category = VideoCategory(name = '自动录制',)
             new_category.save()
             f.write(str(new_category.id))
@@ -99,6 +104,7 @@ def auto_del():
         auto_record_id = f.read
     now = datetime.datetime.now()
     delta = datetime.timedelta(days=7)
+    close_old_connections()
     obj = Vod.objects.filter(category_id=auto_record_id, timestamp__lt=(now - delta))
     for i in obj:
         i.delete()
