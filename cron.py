@@ -107,7 +107,7 @@ def auto_del():
         now = datetime.datetime.now()
         delta = datetime.timedelta(days=7)
         close_old_connections()
-        obj = Vod.objects.filter(category_id=auto_record_id, timestamp__lt=(now - delta))
+        obj = Vod.objects.filter(category_id=int(auto_record_id), timestamp__lt=(now - delta))
         for i in obj:
             i.delete()
     except Exception as e:
