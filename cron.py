@@ -103,7 +103,7 @@ def auto_del():
         if not os.path.exists(category_id_file):
             get_category_id()
         with open(category_id_file,'r', encoding='utf-8') as f:
-            auto_record_id = f.read
+            auto_record_id = f.read()
         now = datetime.datetime.now()
         delta = datetime.timedelta(days=7)
         close_old_connections()
