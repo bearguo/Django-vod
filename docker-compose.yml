@@ -23,6 +23,33 @@ services:
     networks:
       - webnet
 
+  vod_cron:
+    depends_on:
+      - vod_db
+    build: ./
+    image: vod:cron
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - "/home/share/vod/media:/app/media"    
+      - "/home/share/vod/logs:/app/logs"
+      - "/home/share/vod/static:/app/static"
+      - "/media/tongshi:/media/tongshi"
+      - "/home/share/vod/conf:/app/conf"
+    environment:
+      DJANGO_DB_HOST: vod_db
+      TSRTMP_DB_HOST: vod_db
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1G"
+        max-file: "3"
+    restart: always
+    networks:
+      - webnet
+
   vod:
     depends_on:
       - vod_db

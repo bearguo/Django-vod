@@ -1,0 +1,5 @@
+FROM vod:latest
+ENV DJANGO_PORT=8001
+HEALTHCHECK --interval=30s --timeout=3s CMD curl -fs http://localhost:$DJANGO_PORT/admin || exit 1
+ENTRYPOINT ["sh", "entrypoint.sh"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8001"]

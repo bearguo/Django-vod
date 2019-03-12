@@ -21,18 +21,6 @@ WORKDIR /app
 
 COPY requirements.txt /app/
 
-# RUN apk add --no-cache \
-#   --virtual=.build-dependencies \
-#   g++ gfortran file binutils \
-#   musl-dev python3-dev openblas-dev && \
-#   apk add libstdc++ openblas && \
-#   ln -s locale.h /usr/include/xlocale.h && \
-#   pip install -r /app/requirements.txt && \
-#   rm -r /root/.cache && \
-#   find /usr/lib/python3.*/ -name 'tests' -exec rm -r '{}' + && \
-#   find /usr/lib/python3.*/site-packages/ -name '*.so' -print -exec sh -c 'file "{}" | grep -q "not stripped" && strip -s "{}"' \; && \
-#   rm /usr/include/xlocale.h && \
-#   apk del .build-dependencies
 RUN apk add --no-cache \
   --virtual=.build-dependencies \
   build-base python3-dev file && \
@@ -77,6 +65,5 @@ HEALTHCHECK --interval=30s --timeout=3s CMD curl -fs http://localhost:$DJANGO_PO
 COPY . /app
 
 EXPOSE 8000
-ENTRYPOINT ["sh", "entrypoint.sh"]
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
