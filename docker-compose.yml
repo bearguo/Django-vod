@@ -26,7 +26,7 @@ services:
   vod_cron:
     depends_on:
       - vod_db
-    build: ./
+    build: .
     image: vod:cron
     deploy:
       replicas: 1
