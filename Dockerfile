@@ -41,7 +41,6 @@ RUN apk add --no-cache \
 RUN ln -s /bin/sh /bin/bash
 
 ENV DJANGO_PORT=8000 \
-  DJANGO_LOG=$PWD \
   DJANGO_DB_HOST=vod_db \
   TSRTMP_DB_HOST=vod_db \
   LOG_DIR=logs \
