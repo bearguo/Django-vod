@@ -17,7 +17,6 @@ services:
       options:
         max-size: "1G"
         max-file: "3"
-    restart: always
     ports:
       - 3306:3306
     networks:
@@ -26,7 +25,6 @@ services:
   vod_cron:
     depends_on:
       - vod_db
-    build: .
     image: vod:cron
     deploy:
       replicas: 1
@@ -36,7 +34,6 @@ services:
       - "/home/share/vod/media:/app/media"    
       - "/home/share/vod/logs:/app/logs"
       - "/home/share/vod/static:/app/static"
-      - "/media/tongshi:/media/tongshi"
       - "/home/share/vod/conf:/app/conf"
     environment:
       DJANGO_DB_HOST: vod_db
@@ -46,7 +43,6 @@ services:
       options:
         max-size: "1G"
         max-file: "3"
-    restart: always
     networks:
       - webnet
 
@@ -62,7 +58,6 @@ services:
       - "/home/share/vod/media:/app/media"    
       - "/home/share/vod/logs:/app/logs"
       - "/home/share/vod/static:/app/static"
-      - "/media/tongshi:/media/tongshi"
       - "/home/share/vod/conf:/app/conf"
     environment:
       DJANGO_DB_HOST: vod_db
@@ -72,7 +67,6 @@ services:
       options:
         max-size: "1G"
         max-file: "3"
-    restart: always
     ports:
       - 8000:8000
     networks:
